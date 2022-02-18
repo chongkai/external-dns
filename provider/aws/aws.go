@@ -588,6 +588,22 @@ func (p *AWSProvider) AdjustEndpoints(endpoints []*endpoint.Endpoint) []*endpoin
 				Value: fmt.Sprintf("%t", p.evaluateTargetHealth),
 			})
 		}
+		
+		if ep.RecordType == endpoint.RecordTypeTXT {
+			if _, ok := ep.GetProviderSpecificProperty(providerSpecificFailover); ok {
+				props := endpoint.ProviderSpecific{}
+				for _, specificProperty := range ep.ProviderSpecific {
+					if specificProperty.Name != providerSpecificFailover {
+						props = append(props, specificProperty)
+					}
+				}
+				props = append(props, endpoint.ProviderSpecificProperty{
+					Name: providerSpecificMultiValueAnswer,
+					Value: "true",
+				})
+				ep.ProviderSpecific = props
+			}
+		}
 	}
 	return endpoints
 }
